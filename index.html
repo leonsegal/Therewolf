@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Socket.IO chat</title>
+    <style>
+      body {
+        margin: 0;
+        padding-bottom: 3rem;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Helvetica, Arial, sans-serif;
+      }
+
+      #form {
+        background: rgba(0, 0, 0, 0.15);
+        padding: 0.25rem;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        display: flex;
+        height: 3rem;
+        box-sizing: border-box;
+        backdrop-filter: blur(10px);
+      }
+      #input {
+        border: none;
+        padding: 0 1rem;
+        flex-grow: 1;
+        border-radius: 2rem;
+        margin: 0.25rem;
+      }
+      #input:focus {
+        outline: none;
+      }
+      #form > button {
+        background: #333;
+        border: none;
+        padding: 0 1rem;
+        margin: 0.25rem;
+        border-radius: 3px;
+        outline: none;
+        color: #fff;
+      }
+
+      #messages {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+      }
+      #messages > li {
+        padding: 0.5rem 1rem;
+      }
+      #messages > li:nth-child(odd) {
+        background: #efefef;
+      }
+    </style>
+  </head>
+  <body>
+    <ul id="messages"></ul>
+    <form id="form" action="">
+      <input id="input" autocomplete="off" /><button>Send</button>
+    </form>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      // has to be declared first/top of scope
+      let socket = io();
+
+      let userName = sessionStorage.getItem("name");
+      if (userName) {
+        socket.emit("user connected", userName);
+      } else {
+        getName();
+      }
+
+      function getName() {
+        userName = prompt("What's your name?");
+        if (!userName) {
+          getName();
+        }
+
+        socket.emit("check user", userName);
+      }
+
+      socket.on("user exists", () => {
+        alert("User already exists");
+        getName();
+      });
+
+      socket.on("user registered", (name) => {
+        sessionStorage.setItem("name", name);
+        socket.emit("user connected", userName);
+      });
+
+      socket.on("user connected", (name) => {
+        if (name !== userName) {
+          buildMessage(`${name} has joined the game`);
+        }
+      });
+
+      socket.on("user disconnected", (user) => {
+        buildMessage(`${user} disconnected`);
+      });
+
+      socket.on("chat message", (message) => {
+        buildMessage(message);
+      });
+
+      let messages = document.getElementById("messages");
+      function buildMessage(message) {
+        let messageContainer = document.createElement("li");
+        messageContainer.textContent = message;
+        messages.appendChild(messageContainer);
+        window.scrollTo(0, document.body.scrollHeight);
+      }
+
+      let form = document.getElementById("form");
+      let input = document.getElementById("input");
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+
+        if (input.value) {
+          socket.emit("chat message", input.value);
+          input.value = "";
+        }
+      });
+    </script>
+  </body>
+</html>
