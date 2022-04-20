@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
-    <title>Socket.IO chat</title>
+    <title>Where Wolf?</title>
     <style>
       body {
         margin: 0;
@@ -22,16 +22,6 @@
         box-sizing: border-box;
         backdrop-filter: blur(10px);
       }
-      #input {
-        border: none;
-        padding: 0 1rem;
-        flex-grow: 1;
-        border-radius: 2rem;
-        margin: 0.25rem;
-      }
-      #input:focus {
-        outline: none;
-      }
       #form > button {
         background: #333;
         border: none;
@@ -42,7 +32,19 @@
         color: #fff;
       }
 
-      #messages {
+      #input {
+        border: none;
+        padding: 0 1rem;
+        flex-grow: 1;
+        border-radius: 2rem;
+        margin: 0.25rem;
+      }
+      #input:focus {
+        outline: none;
+      }
+
+      #messages,
+      #users > ul {
         list-style-type: none;
         margin: 0;
         padding: 0;
@@ -53,9 +55,28 @@
       #messages > li:nth-child(odd) {
         background: #efefef;
       }
+      #messages {
+        margin-top: 6rem;
+      }
+      #users {
+        background: aliceblue;
+        border: 1px solid #aaa;
+        margin-bottom: 1rem;
+        position: fixed;
+        top: 0;
+      }
+      #users > ul > li {
+        padding: 0.1rem 0.5rem;
+        display: inline-block;
+      }
     </style>
   </head>
   <body>
+    <div id="users">
+      <h3>Users</h3>
+      <ul></ul>
+    </div>
+
     <ul id="messages"></ul>
     <form id="form" action="">
       <input id="input" autocomplete="off" /><button>Send</button>
@@ -63,7 +84,7 @@
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
-      // has to be declared first/top of scope
+      // easier if declared top of scope
       let socket = io();
 
       let userName = sessionStorage.getItem("name");
@@ -79,7 +100,7 @@
           getName();
         }
 
-        socket.emit("check user", userName);
+        socket.emit("new user", userName);
       }
 
       socket.on("user exists", () => {
@@ -87,40 +108,56 @@
         getName();
       });
 
-      socket.on("user registered", (name) => {
+      socket.on("user connected", ({ users, messages }) => {
         sessionStorage.setItem("name", name);
-        socket.emit("user connected", userName);
-      });
+        document.querySelector("#users ul").innerHTML = buildUsers(users);
 
-      socket.on("user connected", (name) => {
-        if (name !== userName) {
-          buildMessage(`${name} has joined the game`);
-        }
-      });
+        document.querySelector("#messages").innerHTML = buildMessages(messages);
 
-      socket.on("user disconnected", (user) => {
-        buildMessage(`${user} disconnected`);
-      });
-
-      socket.on("chat message", (message) => {
-        buildMessage(message);
-      });
-
-      let messages = document.getElementById("messages");
-      function buildMessage(message) {
-        let messageContainer = document.createElement("li");
-        messageContainer.textContent = message;
-        messages.appendChild(messageContainer);
         window.scrollTo(0, document.body.scrollHeight);
+      });
+
+      socket.on("user disconnected", (users) => {
+        document.querySelector("#users ul").innerHTML = buildUsers(users);
+      });
+
+      socket.on("chat message", (messages) => {
+        document.querySelector("#messages").innerHTML = buildMessages(messages);
+
+        window.scrollTo(0, document.body.scrollHeight);
+      });
+
+      function buildUsers(users) {
+        let output = "";
+
+        users.forEach(
+          (user) =>
+            (output +=
+              user.name === userName
+                ? `<li>${user.name} (you)</li>`
+                : `<li>${user.name}</li>`)
+        );
+
+        return output;
       }
 
-      let form = document.getElementById("form");
+      function buildMessages(messages) {
+        let output = "";
+
+        messages.forEach((message) => {
+          output += `<li>${message.name}: ${message.text}</li>`;
+        });
+
+        return output;
+      }
+
       let input = document.getElementById("input");
+      let form = document.getElementById("form");
       form.addEventListener("submit", (e) => {
         e.preventDefault();
 
         if (input.value) {
-          socket.emit("chat message", input.value);
+          socket.emit("chat message", { name: userName, text: input.value });
           input.value = "";
         }
       });
