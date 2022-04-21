@@ -13,13 +13,8 @@ app.get("/", (req, res) => {
 
 io.on("connection", (socket) => {
   // receive on socket, emit on io
-  socket.on(`new user`, (name) => {
-    users.push({ id: socket.id, name });
-    io.emit("user connected", { users, messages });
-  });
-
-  socket.on("user connected", () => {
-    console.log(users, messages);
+  socket.on("user connected", (name) => {
+    users.push({ name, id: socket.id });
     io.emit("user connected", { users, messages });
   });
 

@@ -84,34 +84,13 @@
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
-      // easier if declared top of scope
-      let socket = io();
+      let socket = io(); // easier if declared top of scope
 
-      let userName = sessionStorage.getItem("name");
-      if (userName) {
-        socket.emit("user connected", userName);
-      } else {
-        getName();
-      }
-
-      function getName() {
-        userName = prompt("What's your name?");
-        if (!userName) {
-          getName();
-        }
-
-        socket.emit("new user", userName);
-      }
-
-      socket.on("user exists", () => {
-        alert("User already exists");
-        getName();
-      });
+      let userName = getName();
+      registerUser(userName);
 
       socket.on("user connected", ({ users, messages }) => {
-        sessionStorage.setItem("name", name);
         document.querySelector("#users ul").innerHTML = buildUsers(users);
-
         document.querySelector("#messages").innerHTML = buildMessages(messages);
 
         window.scrollTo(0, document.body.scrollHeight);
@@ -126,6 +105,28 @@
 
         window.scrollTo(0, document.body.scrollHeight);
       });
+
+      function getName() {
+        let userName = sessionStorage.getItem("name");
+
+        if (userName) {
+          return userName;
+        }
+
+        userName = prompt("What's your name?");
+
+        if (!userName) {
+          getName();
+        }
+
+        return userName;
+      }
+
+      function registerUser(name) {
+        sessionStorage.setItem("name", name);
+
+        socket.emit("user connected", name);
+      }
 
       function buildUsers(users) {
         let output = "";
