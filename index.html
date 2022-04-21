@@ -44,7 +44,7 @@
       }
 
       #messages,
-      #users > ul {
+      #players > ul {
         list-style-type: none;
         margin: 0;
         padding: 0;
@@ -58,7 +58,7 @@
       #messages {
         margin-top: 6rem;
       }
-      #users {
+      #players {
         background: aliceblue;
         border: 1px solid #aaa;
         margin-bottom: 1rem;
@@ -66,15 +66,18 @@
         top: 0;
         width: 100%;
       }
-      #users > ul > li {
+      #players > ul > li {
         padding: 0.1rem 0.5rem;
         display: inline-block;
+      }
+      #players > h3 {
+        padding-left: 0.5rem;
       }
     </style>
   </head>
   <body>
-    <div id="users">
-      <h3>Users</h3>
+    <div id="players">
+      <h3>Players</h3>
       <ul></ul>
     </div>
 
@@ -91,14 +94,14 @@
       registerUser(userName);
 
       socket.on("user connected", ({ users, messages }) => {
-        document.querySelector("#users ul").innerHTML = buildUsers(users);
+        document.querySelector("#players ul").innerHTML = buildUsers(users);
         document.querySelector("#messages").innerHTML = buildMessages(messages);
 
         window.scrollTo(0, document.body.scrollHeight);
       });
 
       socket.on("user disconnected", (users) => {
-        document.querySelector("#users ul").innerHTML = buildUsers(users);
+        document.querySelector("#players ul").innerHTML = buildUsers(users);
       });
 
       socket.on("chat message", (messages) => {
