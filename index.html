@@ -90,6 +90,7 @@
     <script>
       let socket = io(); // easier if declared top of scope
 
+      let userRole = null;
       let userName = getName();
       registerUser(userName);
 
@@ -108,6 +109,11 @@
         document.querySelector("#messages").innerHTML = buildMessages(messages);
 
         window.scrollTo(0, document.body.scrollHeight);
+      });
+
+      socket.on("start game", (role) => {
+        userRole = role;
+        alert(`You are ${role}`);
       });
 
       function getName() {
