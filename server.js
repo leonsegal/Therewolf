@@ -3,6 +3,7 @@ let app = express();
 let http = require("http");
 let server = http.createServer(app);
 let { Server } = require("socket.io");
+let path = require("path");
 let io = new Server(server);
 let users = [];
 let messages = [];
@@ -10,8 +11,15 @@ let roles = ["werewolf", "warlock", "seer", "hunter", "villager"];
 let isGameStarted = false;
 let phase = "day";
 
+app.use(express.static(path.join(__dirname, "public")));
+
 app.get("/", (req, res) => {
   res.sendFile(`${__dirname}/index.html`);
+});
+
+app.use((req, res) => {
+  res.status(404);
+  res.send("404");
 });
 
 server.listen(3000, () => {
