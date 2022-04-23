@@ -10,14 +10,14 @@ Then navigate to localhost:3000
 
 Randomly allocate roles
 
-## Night-phase 1st
+## Night-phase
 
 Set dark theme
 Medium can contact the dead if any dead
-Get targets of werewolf/seer/doc/medium
-Work out if werewolf target and serial killer target can be killed (protected etc.)
+Werewolf chooses victim/Warlock and Seer choose target/Doc chooses player to protect/Medium & any dead can chat
+Kill werewolf target if not protected/Reveal warlock/seer target/Info to doc if attack attempted
 
-## Day-phase next
+## Day-phase
 
 Set light theme
 Medium and the dead can no longer message each other
@@ -27,13 +27,15 @@ Show/mute werewolf victim
 Work out if a lynching happens (>50% of players, tie means no lynching)
 Show/mute lynching victim
 
-Repeat night and day phases until winner - werewolves need to match villagers in numbers to win, at which point they will openly rise up and kill everyone
+Repeat night and day phases until winner:
+- Werewolves match villagers in numbers to win, at which point they will openly rise up and kill everyone
+- The villagers win if there are no werewolves left
 
 # To do
 
 - Decide roles to be used in game e.g. werewolf, seer, doctor, medium etc
 - Indicate player's own messages
-- Add private messaging e.g. medium and the dead, the dead to each other or wws
+- Add private messaging e.g. medium and the dead/the dead to each other
 
 # Roles
 
@@ -43,14 +45,19 @@ The game is over when the werewolf dies, or if only 1 werewolf and 1 other playe
 
 ## Warlock
 
-The warlock is on the werewolf team and wins if the werewolf wins. The warlock looks like a villager to the seer.
+The warlock is on the werewolf team and wins if the werewolf wins. 
+
+They will resurrect themselves if the werewolf wins and they're dead.
+
+The warlock looks like a villager to the seer.
+
 During the night-phase, the warlock can look at one player to see if they are the seer.
 
 The werewolf and warlock do NOT know each other's identity.
 
 # Seer
 
-During the night, the seer looks at one player and the moderator tells them if that player is the werewolf.
+During the night, the seer checks a player to see if that player is a werewolf.
 
 # Hunter
 
