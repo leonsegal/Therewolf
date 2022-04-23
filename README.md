@@ -13,14 +13,12 @@ Randomly allocate roles
 ## Night-phase
 
 Set dark theme
-Medium can contact the dead if any dead
-Werewolf chooses victim/Warlock and Seer choose target/Doc chooses player to protect/Medium & any dead can chat
-Kill werewolf target if not protected/Reveal warlock/seer target/Info to doc if attack attempted
+Werewolf chooses victim/Warlock and Seer choose target to check
+Kill werewolf target if not protected/Reveal warlock/seer target
 
 ## Day-phase
 
 Set light theme
-Medium and the dead can no longer message each other
 Show/mute werewolf victim
 30s chat
 30s voting
@@ -28,14 +26,15 @@ Work out if a lynching happens (>50% of players, tie means no lynching)
 Show/mute lynching victim
 
 Repeat night and day phases until winner:
+
 - Werewolves match villagers in numbers to win, at which point they will openly rise up and kill everyone
 - The villagers win if there are no werewolves left
 
 # To do
 
-- Decide roles to be used in game e.g. werewolf, seer, doctor, medium etc
 - Indicate player's own messages
-- Add private messaging e.g. medium and the dead/the dead to each other
+- Add voting
+- Add lynching
 
 # Roles
 
@@ -45,7 +44,7 @@ The game is over when the werewolf dies, or if only 1 werewolf and 1 other playe
 
 ## Warlock
 
-The warlock is on the werewolf team and wins if the werewolf wins. 
+The warlock is on the werewolf team and wins if the werewolf wins.
 
 They will resurrect themselves if the werewolf wins and they're dead.
 
