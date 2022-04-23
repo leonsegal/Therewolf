@@ -95,6 +95,12 @@
       registerUser(userName);
 
       socket.on("user connected", ({ users, messages }) => {
+        swal({
+          title: "Welcome!",
+          text: `You are ${userRole}`,
+          icon: "success",
+          button: "OK",
+        });
         document.querySelector("#players ul").innerHTML = buildUsers(users);
         document.querySelector("#messages").innerHTML = buildMessages(messages);
 
