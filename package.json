@@ -1,12 +1,11 @@
 {
-  "name": "socket-chat-example",
+  "name": "therewolf",
   "version": "0.0.1",
-  "description": "my first socket.io app",
+  "description": "Where wolf?",
   "devDependencies": {
     "prettier": "^2.6.2"
   },
   "dependencies": {
-    "alert": "^5.0.10",
     "express": "^4.17.3",
     "socket.io": "^4.4.1"
   }
