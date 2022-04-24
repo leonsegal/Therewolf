@@ -1,6 +1,8 @@
 let socket = io(); // declared at top of scope
 
-let hasSeenIntro = false;
+let isGameOngoing =
+  sessionStorage.getItem("isGameOngoing") &&
+  sessionStorage.getItem("isGameOngoing") === "true";
 let introModal = document.getElementById("intro-modal");
 let introModalClose = document.getElementById("intro-modal-close");
 introModalClose.onclick = () => (introModal.style.display = "none");
@@ -27,10 +29,11 @@ let userName = getName();
 registerUser(userName);
 
 socket.on("user connected", ({ users, messages }) => {
-  if (!hasSeenIntro) {
+  if (!isGameOngoing) {
     introModal.style.display = "block";
   }
-  hasSeenIntro = true;
+  isGameOngoing = true;
+  sessionStorage.setItem("isGameOngoing", "true");
   playerSection.innerHTML = buildUsers(users);
   messagePanel.innerHTML = buildMessages(messages);
 
