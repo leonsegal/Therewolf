@@ -35,6 +35,7 @@ Repeat night and day phases until winner:
 - Indicate player's own messages
 - Add voting
 - Add lynching
+- Add client repo (possibly in react) and migrate logic from here
 
 # Roles
 
