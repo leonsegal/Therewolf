@@ -30,13 +30,6 @@ Repeat night and day phases until winner:
 - Werewolves match villagers in numbers to win, at which point they will openly rise up and kill everyone
 - The villagers win if there are no werewolves left
 
-# To do
-
-- Indicate player's own messages
-- Add voting
-- Add lynching
-- Add client repo (possibly in react) and migrate logic from here
-
 # Roles
 
 ## Werewolf
