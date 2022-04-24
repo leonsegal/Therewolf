@@ -10,6 +10,7 @@ let messages = [];
 let roles = ["werewolf", "warlock", "seer", "hunter", "villager"];
 let isGameStarted = false;
 let phase = "day";
+let minUsers = 1;
 
 app.use(express.static(path.join(__dirname, "public")));
 
@@ -29,14 +30,11 @@ server.listen(3000, () => {
 io.on("connection", (socket) => {
   // receive on socket, emit on io
   socket.on("user connected", (name) => {
-    // todo: deal with game already started
-
     users.push({ name, id: socket.id });
 
     io.emit("user connected", { users, messages });
 
-    // fixme: make higher
-    if (users.length > 1) {
+    if (users.length > minUsers) {
       startGame();
     }
   });
