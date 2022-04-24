@@ -5,7 +5,7 @@ let introModal = document.getElementById("intro-modal");
 let introModalClose = document.getElementById("intro-modal-close");
 introModalClose.onclick = () => (introModal.style.display = "none");
 
-let infoPanel = document.querySelector("#players ul");
+let playerSection = document.querySelector("#players ul");
 let messagePanel = document.querySelector("#messages");
 
 let outroModal = document.getElementById("outro-modal");
@@ -31,14 +31,14 @@ socket.on("user connected", ({ users, messages }) => {
     introModal.style.display = "block";
   }
   hasSeenIntro = true;
-  infoPanel.innerHTML = buildUsers(users);
+  playerSection.innerHTML = buildUsers(users);
   messagePanel.innerHTML = buildMessages(messages);
 
   window.scrollTo(0, document.body.scrollHeight);
 });
 
 socket.on("user disconnected", (users) => {
-  infoPanel.innerHTML = buildUsers(users);
+  playerSection.innerHTML = buildUsers(users);
 });
 
 socket.on("chat message", (messages) => {
