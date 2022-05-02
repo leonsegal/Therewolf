@@ -1,16 +1,6 @@
 let express = require("express");
 let app = express();
-let http = require("http");
-let server = http.createServer(app);
-let { Server } = require("socket.io");
 let path = require("path");
-let io = new Server(server);
-let users = [];
-let messages = [];
-let roles = ["werewolf", "warlock", "seer", "hunter", "villager"];
-let isGameStarted = false;
-let phase = "day";
-let minUsers = 1;
 
 app.use(express.static(path.join(__dirname, "public")));
 
@@ -18,30 +8,48 @@ app.get("/", (req, res) => {
   res.sendFile(`${__dirname}/index.html`);
 });
 
+let cors = require("cors");
+app.use(cors());
+
 app.use((req, res) => {
   res.status(404);
   res.send("404");
 });
 
-server.listen(3000, () => {
-  console.log("Server is running on port 3000");
+let http = require("http");
+let server = http.createServer(app);
+
+server.listen(4500, () => {
+  console.log("Server is running on port 4500");
 });
 
+let { Server } = require("socket.io");
+// cors config set here:
+let io = new Server(server, {
+  cors: {
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST"],
+  },
+});
+let players = [];
+let requiredPlayers = 2;
+let messages = [];
+
 io.on("connection", (socket) => {
+  io.emit("FromAPI", new Date());
   // receive on socket, emit on io
-  socket.on("user connected", (name) => {
-    users.push({ name, id: socket.id });
+  socket.on("player connected", (name) => {
+    let player = { name, id: socket.id, role: null, isAlive: true };
+    players.push(player);
 
-    io.emit("user connected", { users, messages });
+    io.emit("player connected", { players, messages });
 
-    if (users.length > minUsers) {
-      startGame();
-    }
+    players.length === requiredPlayers && startGame();
   });
 
   socket.on("disconnect", () => {
-    users = users.filter((user) => user.id !== socket.id);
-    io.emit(`user disconnected`, users);
+    players = players.filter((player) => player.id !== socket.id);
+    io.emit(`player disconnected`, players);
   });
 
   socket.on("chat message", (message) => {
@@ -50,13 +58,43 @@ io.on("connection", (socket) => {
   });
 });
 
+let isGameStarted = false;
+let phase = "day";
+let roles = [
+  {
+    name: "werewolf",
+    description:
+      "Each night you get to select a victim to kill. \nYou win if it's just you and a non-hunter left.",
+  },
+  {
+    name: "seer",
+    description:
+      "Each night you can select a player to uncover their role. \nYou win if all werewolves are eliminated.",
+  },
+  {
+    name: "villager",
+    description:
+      "You have to find the werewolf and lynch them. \nYou win if all werewolves are eliminated",
+  },
+  // { name: "medic", description: "" },
+  // { name: "warlock", description: "" },
+  // { name: "hunter", description: "" },
+];
+let shuffledRoles = shuffle(roles);
+
+function getDescription(role) {
+  return "description" + role;
+}
+
 function startGame() {
   isGameStarted = true;
   phase = "night";
-  let shuffledRoles = shuffle(roles);
-  users.forEach((user, i) => {
-    user.role = shuffledRoles[i];
-    io.to(user.id).emit("start game", user.role);
+  players.forEach((player, i) => {
+    player.role = shuffledRoles[i];
+    io.to(player.id).emit("start game", {
+      role: player.role,
+      description: getDescription(player.role),
+    });
   });
 }
 
@@ -64,17 +102,14 @@ function shuffle(array) {
   let currentIndex = array.length;
   let randomIndex;
 
-  // While there remain elements to shuffle.
+  // While un-shuffled elems
   while (currentIndex !== 0) {
-    // Pick a remaining element.
+    // Pick un-shuffled elem
     randomIndex = Math.floor(Math.random() * currentIndex);
     currentIndex--;
 
-    // And swap it with the current element.
-    [array[currentIndex], array[randomIndex]] = [
-      array[randomIndex],
-      array[currentIndex],
-    ];
+    // Swap with current elem
+    [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]]; // prettier-ignore
   }
 
   return array;

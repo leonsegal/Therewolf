@@ -1,11 +1,5 @@
-let socket = io(); // declared at top of scope
-
-let isGameOngoing =
-  sessionStorage.getItem("isGameOngoing") &&
-  sessionStorage.getItem("isGameOngoing") === "true";
-
-let playerSection = document.querySelector("#players ul");
-let messagePanel = document.querySelector("#messages");
+// let socket = io.connect("http://localhost:4500"); // declared at top
+let socket = io();
 
 let introModal = document.getElementById("intro-modal");
 let introModalClose = document.getElementById("intro-modal-close");
@@ -19,37 +13,37 @@ let outroModal = document.getElementById("outro-modal");
 let outroModalClose = document.getElementById("outro-modal-close");
 outroModalClose.onclick = () => (outroModal.style.display = "none");
 
-window.onclick = (event) => {
-  if (event.target === introModal) {
+window.onclick = (e) => {
+  if (e.target === introModal) {
     introModal.style.display = "none";
   }
 
-  if (event.target === roleModal) {
+  if (e.target === roleModal) {
     roleModal.style.display = "none";
   }
 
-  if (event.target === outroModal) {
+  if (e.target === outroModal) {
     outroModal.style.display = "none";
   }
 };
 
-let userRole = null;
-let userName = getName();
-registerUser(userName);
+let playerSection = document.querySelector("#players ul");
+let messagePanel = document.querySelector("#messages");
+let isGameStarted = sessionStorage.getItem("isGameStarted");
 
-socket.on("user connected", ({ users, messages }) => {
-  if (!isGameOngoing) {
+socket.on("player connected", ({ players, messages }) => {
+  if (isGameStarted !== true) {
     introModal.style.display = "block";
   }
 
-  playerSection.innerHTML = buildUsers(users);
+  playerSection.innerHTML = buildPlayers(players);
   messagePanel.innerHTML = buildMessages(messages);
 
   window.scrollTo(0, document.body.scrollHeight);
 });
 
-socket.on("user disconnected", (users) => {
-  playerSection.innerHTML = buildUsers(users);
+socket.on("player disconnected", (players) => {
+  playerSection.innerHTML = buildPlayers(players);
 });
 
 socket.on("chat message", (messages) => {
@@ -58,57 +52,54 @@ socket.on("chat message", (messages) => {
   window.scrollTo(0, document.body.scrollHeight);
 });
 
-socket.on("start game", (role) => {
-  userRole = role;
-  alert(`You are ${role}`);
-  isGameOngoing = true;
-  sessionStorage.setItem("isGameOngoing", "true");
+let playerRole = null;
+
+socket.on("start game", ({ role, description }) => {
+  playerRole = role;
+  alert(`Your role: ${role}\n${description}`);
+  isGameStarted = true;
+  sessionStorage.setItem("isGameStarted", "true");
 });
 
-function getName() {
-  let userName = sessionStorage.getItem("name");
+let playerName = getName();
+registerPlayer(playerName);
 
-  if (userName) {
-    return userName;
+function getName() {
+  let playerName = sessionStorage.getItem("name");
+
+  if (playerName) {
+    return playerName;
   }
 
-  userName = prompt("What's your name?");
+  playerName = prompt("What's your name?");
 
-  if (!userName) {
+  if (!playerName) {
     getName();
   }
 
-  return userName;
+  return playerName;
 }
 
-function registerUser(name) {
+function registerPlayer(name) {
   sessionStorage.setItem("name", name);
 
-  socket.emit("user connected", name);
+  socket.emit("player connected", name);
 }
 
-function buildUsers(users) {
-  let output = "";
-
-  users.forEach(
-    (user) =>
-      (output +=
-        user.name === userName
-          ? `<li>${user.name} (you)</li>`
-          : `<li>${user.name}</li>`)
+function buildPlayers(players) {
+  return players.reduce(
+    (output, player) =>
+      output +
+      `<li>${(player.name += player.name === playerName ? "(you)" : "")}</li>`,
+    ""
   );
-
-  return output;
 }
 
 function buildMessages(messages) {
-  let output = "";
-
-  messages.forEach((message) => {
-    output += `<li>${message.name}: ${message.text}</li>`;
-  });
-
-  return output;
+  return messages.reduce(
+    (output, message) => output + `<li>${message.name}: ${message.text}</li>`,
+    ""
+  );
 }
 
 let input = document.getElementById("input");
@@ -117,7 +108,7 @@ form.addEventListener("submit", (e) => {
   e.preventDefault();
 
   if (input.value) {
-    socket.emit("chat message", { name: userName, text: input.value });
+    socket.emit("chat message", { name: playerName, text: input.value });
     input.value = "";
   }
 });
