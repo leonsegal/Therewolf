@@ -89,8 +89,8 @@ function registerPlayer(name) {
 function buildPlayers(players) {
   return players.reduce(
     (output, player) =>
-      output +
-      `<li>${(player.name += player.name === playerName ? "(you)" : "")}</li>`,
+      `${output}<li>${(player.name +=
+        player.name === playerName ? "(you)" : "")}</li>`,
     ""
   );
 }
@@ -108,7 +108,7 @@ form.addEventListener("submit", (e) => {
   e.preventDefault();
 
   if (input.value) {
-    socket.emit("chat message", { name: playerName, text: input.value });
+    socket.emit("chat message", playerName, input.value);
     input.value = "";
   }
 });

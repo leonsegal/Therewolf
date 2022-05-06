@@ -36,19 +36,24 @@ let requiredPlayers = 2;
 let messages = [];
 
 io.on("connection", (socket) => {
-  io.emit("FromAPI", new Date());
   // receive on socket, emit on io
-  socket.on("player connected", (name) => {
-    let player = { name, id: socket.id, role: null, isAlive: true };
-    players.push(player);
 
+  socket.on("reconnect player", (id) => {
+    let player = players.find((player) => player.id === id);
+    player.socketID = socket.id;
+    io.emit("player connected", { players, messages });
+  });
+
+  socket.on("register player", ({ name, id }) => {
+    let player = { name, id, socketID: socket.id, role: null, isAlive: true };
+    players.push(player);
     io.emit("player connected", { players, messages });
 
     players.length === requiredPlayers && startGame();
   });
 
   socket.on("disconnect", () => {
-    players = players.filter((player) => player.id !== socket.id);
+    players = players.filter((player) => player.socketID !== socket.id);
     io.emit(`player disconnected`, players);
   });
 
@@ -91,25 +96,24 @@ function startGame() {
   phase = "night";
   players.forEach((player, i) => {
     player.role = shuffledRoles[i];
-    io.to(player.id).emit("start game", {
-      role: player.role,
-      description: getDescription(player.role),
-    });
+    let role = player.role;
+    let description = getDescription(role);
+    io.to(player.id).emit("start game", { role, description });
   });
 }
 
 function shuffle(array) {
-  let currentIndex = array.length;
-  let randomIndex;
+  let iCurrent = array.length;
+  let iRandom;
 
   // While un-shuffled elems
-  while (currentIndex !== 0) {
+  while (iCurrent !== 0) {
     // Pick un-shuffled elem
-    randomIndex = Math.floor(Math.random() * currentIndex);
-    currentIndex--;
+    iRandom = Math.floor(Math.random() * iCurrent);
+    iCurrent--;
 
     // Swap with current elem
-    [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]]; // prettier-ignore
+    [array[iCurrent], array[iRandom]] = [array[iRandom], array[iCurrent]];
   }
 
   return array;
