@@ -23,8 +23,9 @@ app.use((req, res) => {
   res.send("404");
 });
 
-server.listen(3000, () => {
-  console.log("Server is running on port 3000");
+let port = 3000;
+server.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
 });
 
 io.on("connection", (socket) => {
